@@ -5,25 +5,19 @@ import (
 )
 
 func main() {
-	chNum := make(chan int)
-	chQuit := make(chan struct{})
+	fn := fibonacci()
 
-	go fibonacci(chNum, chQuit)
 	for i := 0; i < 10; i++ {
-		fmt.Println(<-chNum)
+		fmt.Println(fn())
 	}
-	chQuit <- struct{}{}
 }
 
-func fibonacci(chNum chan int, chQuit chan struct{}) {
+func fibonacci() func() int {
 	a, b := 0, 1
-
-	for {
-		select {
-		case <-chQuit:
-			return
-		case chNum <- a:
+	return func() int {
+		defer func() {
 			a, b = b, a+b
-		}
+		}()
+		return a
 	}
 }
